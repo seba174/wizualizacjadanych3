@@ -5,7 +5,7 @@ time_of_day = ['Morning', 'Afternoon', 'Evening']
 data = [[1, 25, 30, 50, 1], [18, 3, 60, 80, 30], [30, 60, 7, 3, 20]]
 
 bad_fig = px.imshow(data,
-                labels=dict(x="Day of Week", y="Time of Day", color="Average productivity"),
+                labels=dict(x="Day of week", y="Time of day", color="Average productivity"),
                 x=days,
                 y=time_of_day
                )
@@ -19,7 +19,11 @@ good_fig = {
         {'x': days, 'y': data[2], 'type': 'bar', 'name': time_of_day[2]}
     ],
     'layout': {
+        'xaxis': {
+            'title': "Day of week"
+        },
         'yaxis': {
+            'title': "Average productivity",
             'tickmode': "linear",
             'tick0': 0,
             'dtick': 4
