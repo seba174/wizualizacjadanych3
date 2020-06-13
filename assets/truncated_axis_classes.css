@@ -1,0 +1,7 @@
+.wrong-chart-panel-visible, .correct-chart-panel-visible {
+    display: block;
+}
+
+.correct-chart-panel-hidden, .wrong-chart-panel-hidden {
+    display: none;
+}
