@@ -191,6 +191,7 @@ bad_fig_5.update_layout(
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 app.layout = dbc.Container(
     [
         html.H1("Tricky charts - QUIZ", className='m-5'),
