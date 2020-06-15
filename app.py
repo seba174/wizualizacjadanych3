@@ -174,6 +174,20 @@ good_fig_4.update_layout(
     # showlegend=False
 ) 
 
+# wykres 5.
+
+df = px.data.iris()
+good_fig_5 = px.scatter(df, x="sepal_length", y="sepal_width", color="species")
+good_fig_5.update_layout(
+    xaxis_title="sepal length",
+    yaxis_title="sepal width",
+)
+
+bad_fig_5 = px.scatter(df, x="species", y="sepal_width", color="sepal_length")
+bad_fig_5.update_layout(
+    xaxis_title="sepal length",
+    yaxis_title="sepal width",
+)
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -326,18 +340,44 @@ app.layout = dbc.Container(
     ]),
 
 
-    html.Div(id='proper-div-4', children=[
-        dbc.Button('Next >>', id='go-to-fifth-chart', color="primary", className="mt-3 float-right"),
-        html.Label('Results:'),
-        html.Br(),
-        html.Label('GDP of which country has fluctuated more?'),
-        html.Br(),
-        html.Div(id='input_out-4'),
-        html.H2('Bad plot'),
-        html.Div([dcc.Graph(figure=bad_fig_4)], style=plot_styles),
-        html.H2('Better plot'),
-        html.Div([dcc.Graph(figure=good_fig_4)], style=plot_styles)
-    ])
+        html.Div(id='proper-div-4', children=[
+            dbc.Button('Next >>', id='go-to-fifth-chart', color="primary", className="mt-3 float-right"),
+            html.Label('Results:'),
+            html.Br(),
+            html.Label('GDP of which country has fluctuated more?'),
+            html.Br(),
+            html.Div(id='input_out-4'),
+            html.H2('Bad plot'),
+            html.Div([dcc.Graph(figure=bad_fig_4)], style=plot_styles),
+            html.H2('Better plot'),
+            html.Div([dcc.Graph(figure=good_fig_4)], style=plot_styles)
+        ]),
+
+        dbc.Row(id='test-div-5', children=[
+                    dbc.FormGroup(
+                [
+                    dbc.Label('What is the biggest sepal length for versicolor?'),
+                    dbc.Input(id='input-5', type='number'),
+
+                    dbc.Button('Check result', id='submit-button-5', color="primary", className="mt-3")
+            ], className="mt-5"),
+            html.Div([dcc.Graph(figure=bad_fig_5, config={'staticPlot': True})], style=plot_styles),
+        ]),
+
+
+        html.Div(id='proper-div-5', children=[
+            html.Label('Results:'),
+            html.Br(),
+            html.Label('What is the biggest sepal length for versicolor?'),
+            html.Br(),
+            html.Div(id='input_out-5'),
+
+            html.H2('Bad plot'),
+            html.Div([dcc.Graph(figure=bad_fig_5)], style=plot_styles),
+
+            html.H2('Better plot'),
+            html.Div([dcc.Graph(figure=good_fig_5)], style=plot_styles)
+        ]),
 
 ]
 )
@@ -489,13 +529,15 @@ def hide_test_on_submit_show_on_go_to_fourth_chart(n_clicks, go_to_fourth_chart_
 
 @app.callback(
    Output(component_id='proper-div-4', component_property='style'),
-   [Input('submit-button-4','n_clicks')]
+   [Input('submit-button-4','n_clicks'), Input('go-to-fifth-chart', 'n_clicks')]
 )
 
-def show_proper_on_submit(n_clicks):
-   if n_clicks and n_clicks > 0:
+def show_proper_on_submit_hide_on_go_to_fifth(n_clicks, go_to_fifth_chart_n_clicks):
+    if go_to_fifth_chart_n_clicks and go_to_fifth_chart_n_clicks > 0:
+        return {'marginLeft':-9999, 'position': 'absolute'}
+    if n_clicks and n_clicks > 0:
        return {}
-   else: return {'marginLeft':-9999, 'position': 'absolute'}
+    return {'marginLeft':-9999, 'position': 'absolute'}
 
 @app.callback(
     Output("input_out-4", "children"),
@@ -504,6 +546,39 @@ def show_proper_on_submit(n_clicks):
 
 def number_render(input):
     return "Your answer: {}, correct answer: {}".format(input, 'Germany')
+
+# piąty wykres
+
+@app.callback(
+   Output(component_id='test-div-5', component_property='style'),
+   [Input('submit-button-5','n_clicks'), Input('go-to-fifth-chart', 'n_clicks')]
+)
+
+def hide_test_on_submit_show_on_go_to_fifth_chart(n_clicks, go_to_fifth_chart_n_clicks):
+    if n_clicks and n_clicks > 0:
+       return {'marginLeft':-9999, 'position': 'absolute'}
+    if go_to_fifth_chart_n_clicks and go_to_fifth_chart_n_clicks > 0:
+        return {}
+    else: return {'marginLeft':-9999, 'position': 'absolute'}
+
+@app.callback(
+   Output(component_id='proper-div-5', component_property='style'),
+   [Input('submit-button-5','n_clicks')]
+)
+
+def show_proper_on_submit(n_clicks):
+   if n_clicks and n_clicks > 0:
+       return {}
+   else: return {'marginLeft':-9999, 'position': 'absolute'}
+
+@app.callback(
+    Output("input_out-5", "children"),
+    [Input("input-5", "value")],
+)
+
+def render_sepal_length(input):
+    return "Your answer: {}, correct answer: 7".format(input)
+
 
 
 app.run_server(debug=True, use_reloader=True)
