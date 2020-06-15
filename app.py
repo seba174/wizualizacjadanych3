@@ -605,4 +605,4 @@ def render_sepal_length(input):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, use_reloader=True)
