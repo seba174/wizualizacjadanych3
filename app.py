@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
 
 # data
 
@@ -85,6 +86,94 @@ good_fig_3 = px.bar(data, x="city", y="area")
 questions = ["1. What is a second biggest city in Poland",
              "2. What is the area (in hectares) of third biggest city in Poland?"]
 correct_answers_3 = ["Kraków", areas["Szczecin"]]
+
+
+# wykres 4.
+germany = [  
+    3.002446368084,
+    3.439953462907,
+    3.752365607148,
+    3.418005001389,
+    3.417094562649,
+    3.757698281118,
+    3.543983909148,
+    3.752513503278,
+    3.898726503841,
+    3.381389338659,
+    3.495162856297,
+    3.693204332230
+]
+
+japan = [
+    4.530377224970,
+    4.515264514431,
+    5.037908465114,
+    5.231382674594,
+    5.700098114744,
+    6.157459594824,
+    6.203213121334,
+    5.155717056271,
+    4.850413536038,
+    4.394977752878,
+    4.949273341994,
+    4.872415104315,
+]
+
+years = list(range(2006, 2018))
+
+textposition = [
+    'top center',
+    'middle right',
+    'top center',
+    'middle left',
+    'middle left',
+    'top center',
+    'middle left',
+    'middle right',
+    'middle right',
+    'bottom center',
+    'top left',
+    'middle right'
+]
+
+japan_title = 'Japan GDP (in current USD trillions)'
+germany_title = 'Germany GDP (in current USD trillions)'
+
+bad_fig_4 = go.Figure()
+
+bad_fig_4.add_trace(go.Scatter(
+        x=germany, 
+        y=japan, 
+        text=years,
+        textposition = textposition,
+        mode='lines+markers+text'))
+
+bad_fig_4.update_layout(
+    autosize=False,
+    width=800,
+    height=600,
+    xaxis_title=germany_title,
+    yaxis_title=japan_title,
+) 
+
+good_fig_4 = go.Figure()
+
+good_fig_4.add_trace(
+    go.Scatter(x=years, y=germany, mode='lines+markers', name="Germany"),
+)
+
+good_fig_4.add_trace(
+    go.Scatter(x=years, y=japan, mode='lines+markers', name="Japan")
+)
+    
+good_fig_4.update_layout(
+    autosize=False,
+    width=700,
+    height=400,
+    yaxis_title="GDP in current USD trillions",
+    # showlegend=False
+) 
+
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -200,6 +289,7 @@ app.layout = dbc.Container(
 
 
         html.Div(id='proper-div-3', children=[
+            dbc.Button('Next >>', id='go-to-fourth-chart', color="primary", className="mt-3 float-right"),
             html.Label('Results:'),
             html.Br(),
             html.Label(questions[0]),
@@ -215,7 +305,39 @@ app.layout = dbc.Container(
 
             html.H2('Better plot'),
             html.Div([dcc.Graph(figure=good_fig_3)])
-        ])
+        ]),
+
+
+        html.Div(id='test-div-4', children=[
+        html.Div([dcc.Graph(figure=bad_fig_4, config={'staticPlot': True})], style=plot_styles),
+
+        html.Label('GDP of which country has fluctuated more?'),
+        html.Br(),
+        dcc.RadioItems(
+            id='input-4',
+            options=[
+                {'label': 'Japan', 'value': 'Japan'},
+                {'label': 'Germany', 'value': 'Germany'},
+            ],
+            value='Japan'
+        ),
+        html.Br(),
+        html.Button('Check results', id='submit-button-4')
+    ]),
+
+
+    html.Div(id='proper-div-4', children=[
+        dbc.Button('Next >>', id='go-to-fifth-chart', color="primary", className="mt-3 float-right"),
+        html.Label('Results:'),
+        html.Br(),
+        html.Label('GDP of which country has fluctuated more?'),
+        html.Br(),
+        html.Div(id='input_out-4'),
+        html.H2('Bad plot'),
+        html.Div([dcc.Graph(figure=bad_fig_4)], style=plot_styles),
+        html.H2('Better plot'),
+        html.Div([dcc.Graph(figure=good_fig_4)], style=plot_styles)
+    ])
 
 ]
 )
@@ -324,9 +446,11 @@ def hide_test_on_submit_show_on_go_to_third_chart_3(n_clicks, next_chart_n_click
 
 @app.callback(
    Output(component_id='proper-div-3', component_property='style'),
-   [Input('submit-button-3', 'n_clicks')]
+   [Input('submit-button-3', 'n_clicks'), Input('go-to-fourth-chart', 'n_clicks')]
 )
-def show_proper_on_submit_3(n_clicks):
+def show_proper_on_submit_hide_on_go_to_next3(n_clicks, go_to_fourth_chart_n_clicks):
+    if go_to_fourth_chart_n_clicks and go_to_fourth_chart_n_clicks > 0:
+        return {'marginLeft': -9999, 'position': 'absolute'}
     if n_clicks and n_clicks > 0:
         return {}
     else:
@@ -347,6 +471,39 @@ def number_render_3(input_1):
 )
 def number_render_3(input_2):
     return "Your answer: {}, correct answer: {}".format(input_2, correct_answers_3[1])
+
+
+# czwarty wykres
+
+@app.callback(
+   Output(component_id='test-div-4', component_property='style'),
+   [Input('submit-button-4','n_clicks'), Input('go-to-fourth-chart', 'n_clicks')]
+)
+
+def hide_test_on_submit_show_on_go_to_fourth_chart(n_clicks, go_to_fourth_chart_n_clicks):
+    if n_clicks and n_clicks > 0:
+       return {'marginLeft':-9999, 'position': 'absolute'}
+    if go_to_fourth_chart_n_clicks and go_to_fourth_chart_n_clicks > 0:
+        return {}
+    else: return {'marginLeft':-9999, 'position': 'absolute'}
+
+@app.callback(
+   Output(component_id='proper-div-4', component_property='style'),
+   [Input('submit-button-4','n_clicks')]
+)
+
+def show_proper_on_submit(n_clicks):
+   if n_clicks and n_clicks > 0:
+       return {}
+   else: return {'marginLeft':-9999, 'position': 'absolute'}
+
+@app.callback(
+    Output("input_out-4", "children"),
+    [Input("input-4", "value")],
+)
+
+def number_render(input):
+    return "Your answer: {}, correct answer: {}".format(input, 'Germany')
 
 
 app.run_server(debug=True, use_reloader=True)
