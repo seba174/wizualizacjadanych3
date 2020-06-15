@@ -580,5 +580,5 @@ def render_sepal_length(input):
     return "Your answer: {}, correct answer: 7".format(input)
 
 
-
-app.run_server(debug=True, use_reloader=True)
+if __name__ == '__main__':
+    app.run_server(debug=True)
