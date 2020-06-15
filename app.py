@@ -135,7 +135,7 @@ app.layout = dbc.Container(
             html.Div([dcc.Graph(figure=good_fig)], style=plot_styles)
         ]),
 
-        html.Div(id='second-chart', children=[
+        html.Div(id='test-div-2', children=[
         html.Div(id='panel', children=[
             dcc.Graph(
                 id='truncated-axis',
@@ -158,40 +158,64 @@ app.layout = dbc.Container(
             html.H4(id='result', children="2"),
             html.Button(id='check-button', children="Sprawdź")
         ])
-    ]),
+        ]),
 
-    html.Div(id='test-div-3', children=[
-        html.Div([dcc.Graph(figure=bad_fig_3, config={'staticPlot': True})]),
+            html.Div(id='proper-div-2', children=[
+            html.Div(children=[
+            dbc.Button('Next >>', id='go-to-third-chart', color="primary", className="mt-3 float-right"),
+            html.Br(),
+            html.Br(),
+            html.Br(),
+            html.Br(),
+            html.H3(children="Prawidłowa odpowiedź to 1,4. Ucięte osie potrafią znacznie utrudnić wyciągnięcie" + \
+                              " z wykresu prawidłowych wniosków. Poniżej możesz obejrzeć poprawny wykres z którego" + \
+                              " łatwiej odczytać prawidłowe informacje."),
+            dcc.Graph(
+                id='normal-axis',
+                figure={
+                    'data': [
+                        {'x': labels, 'y': values, 'type': 'bar', 'name': 'SF'},
+                    ],
+                    'layout': {
+                        'title': 'Zestawienie pięciu najlepiej zarabiających filmów w historii',
+                    }
+                }
+            ),
+        ])
+        ]),
 
-        html.Label(questions[0]),
-        html.Br(),
-        dcc.Dropdown(options=city_options, id="input_1-3"),
-        html.Br(),
-        html.Label(questions[1]),
-        html.Br(),
-        dcc.Input(id='input_2-3', type='number'),
-        html.Br(),
-        html.Button('Check results', id='submit-button-3')
-    ]),
+        html.Div(id='test-div-3', children=[
+            html.Div([dcc.Graph(figure=bad_fig_3, config={'staticPlot': True})]),
+
+            html.Label(questions[0]),
+            html.Br(),
+            dcc.Dropdown(options=city_options, id="input_1-3"),
+            html.Br(),
+            html.Label(questions[1]),
+            html.Br(),
+            dcc.Input(id='input_2-3', type='number'),
+            html.Br(),
+            html.Button('Check results', id='submit-button-3')
+        ]),
 
 
-    html.Div(id='proper-div-3', children=[
-        html.Label('Results:'),
-        html.Br(),
-        html.Label(questions[0]),
-        html.Br(),
-        html.Div(id='input_1_out-3'),
+        html.Div(id='proper-div-3', children=[
+            html.Label('Results:'),
+            html.Br(),
+            html.Label(questions[0]),
+            html.Br(),
+            html.Div(id='input_1_out-3'),
 
-        html.Label(questions[1]),
-        html.Br(),
-        html.Div(id='input_2_out-3'),
+            html.Label(questions[1]),
+            html.Br(),
+            html.Div(id='input_2_out-3'),
 
-        html.H2('Bad plot'),
-        html.Div([dcc.Graph(figure=bad_fig_3)]),
+            html.H2('Bad plot'),
+            html.Div([dcc.Graph(figure=bad_fig_3)]),
 
-        html.H2('Better plot'),
-        html.Div([dcc.Graph(figure=good_fig_3)])
-    ])
+            html.H2('Better plot'),
+            html.Div([dcc.Graph(figure=good_fig_3)])
+        ])
 
 ]
 )
@@ -253,78 +277,26 @@ def number_render(input_2):
 # drugi wykres
 
 @app.callback(
-   Output(component_id='second-chart', component_property='style'),
-   [Input('go-to-second-chart','n_clicks')]
+   Output(component_id='test-div-2', component_property='style'),
+   [Input('go-to-second-chart','n_clicks'), Input('check-button','n_clicks')]
 )
-def show_second_chart_on_go_to_second_chart_hide_on_go_to_third(next_chart_n_clicks):
-    print(next_chart_n_clicks)
-    print('xDDD')
+def show_second_chart_on_go_to_second_chart_hide_on_check(next_chart_n_clicks, check_n_clicks):
+    if check_n_clicks and check_n_clicks > 0:
+        return {'marginLeft':-9999, 'position': 'absolute'}
     if next_chart_n_clicks and next_chart_n_clicks > 0:
         return {}
     else: return {'marginLeft':-9999, 'position': 'absolute'}
 
 @app.callback(
-    Output('panel', 'children'),
-    [Input('check-button', 'n_clicks')],
-    [dash.dependencies.State('truncated-axis-input', 'value')]
+    Output('proper-div-2', component_property='style'),
+    [Input('check-button', 'n_clicks'), Input('go-to-third-chart', 'n_clicks')]
 )
-def update_panels(n_clicks, value):
-    if n_clicks is None:
-        return [
-            html.Div(id='panel', children=[
-                dcc.Graph(
-                    id='truncated-axis',
-                    figure={
-                        'data': [
-                            {'x': labels, 'y': values, 'type': 'bar', 'name': 'SF'},
-                        ],
-                        'layout': {
-                            'title': 'Zestawienie pięciu najlepiej zarabiających filmów w historii',
-                            'yaxis': {
-                                'range': [2_000_000_000, 3_000_000_000],
-                                'color': '#E1E1E1',
-                            },
-                        }
-                    }
-                ),
-                html.H4(children="Na podstawie wykresu oszacuj, ile razy więcej zarobił Avengers: Endgame niż Star Wars: The Force Awakens"),
-                dcc.Input(id='truncated-axis-input', className='centered', type='range', min=1, max=10, step=0.1,
-                          value=5.5),
-                html.H4(id='result', children="2"),
-                html.Button(id='check-button', children="Sprawdź")
-            ])
-        ]
-
-    else:
-        value = float(value)
-        if value == 1.4:
-            div = html.H3("Odpowiedziałeś poprawnie!")
-        elif abs(value - 1.4) <= 0.5:
-            div = html.H3("Byłeś blisko!")
-        else:
-            div = html.H3("Zupełnie nie!")
-        return [
-            dbc.Button('Next >>', id='go-to-third-chart', color="primary", className="mt-3 float-right"),
-            html.Br(),
-            html.Br(),
-            html.Br(),
-            html.Br(),
-            div,
-            html.H3(children="Prawidłowa odpowiedź to 1,4. Ucięte osie potrafią znacznie utrudnić wyciągnięcie" + \
-                              " z wykresu prawidłowych wniosków. Poniżej możesz obejrzeć poprawny wykres z którego" + \
-                              " łatwiej odczytać prawidłowe informacje."),
-            dcc.Graph(
-                id='normal-axis',
-                figure={
-                    'data': [
-                        {'x': labels, 'y': values, 'type': 'bar', 'name': 'SF'},
-                    ],
-                    'layout': {
-                        'title': 'Zestawienie pięciu najlepiej zarabiających filmów w historii',
-                    }
-                }
-            ),
-        ]
+def show_2nd_proper_on_check_hide_on_go_to_third(n_clicks, go_to_third_n_clicks):
+    if go_to_third_n_clicks and go_to_third_n_clicks > 0:
+        return {'marginLeft':-9999, 'position': 'absolute'}    
+    if n_clicks and n_clicks > 0:
+        return {}
+    return {'marginLeft':-9999, 'position': 'absolute'}
 
 
 @app.callback(
@@ -342,12 +314,12 @@ def result(value):
    [Input('submit-button-3', 'n_clicks'), Input('go-to-third-chart', 'n_clicks')]
 )
 def hide_test_on_submit_show_on_go_to_third_chart_3(n_clicks, next_chart_n_clicks):
-    if next_chart_n_clicks and next_chart_n_clicks > 0:
-        return {}
     if n_clicks and n_clicks > 0:
         return {'marginLeft': -9999, 'position': 'absolute'}
-    else:
+    if next_chart_n_clicks and next_chart_n_clicks > 0:
         return {}
+    else:
+        return {'marginLeft': -9999, 'position': 'absolute'}
 
 
 @app.callback(
