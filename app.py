@@ -227,7 +227,7 @@ app.layout = dbc.Container(
             html.Label('1. What is an average productivity at Thursday evening?'),
             html.Br(),
             html.Div(id='input_1_out'),
-
+            html.Br(),
             html.Label('2. What is an average productivity at Monday afternoon?'),
             html.Br(),
             html.Div(id='input_2_out'),
@@ -248,7 +248,7 @@ app.layout = dbc.Container(
                         {'x': labels, 'y': values, 'type': 'bar', 'name': 'SF'},
                     ],
                     'layout': {
-                        'title': 'Zestawienie pięciu najlepiej zarabiających filmów w historii',
+                        'title': 'Top 5 highest-grossing films',
                         'yaxis': {
                             'range': [2_000_000_000, 3_000_000_000],
                             'color': '#E1E1E1',
@@ -256,11 +256,13 @@ app.layout = dbc.Container(
                     }
                 }
             ),
-            html.H4(children="Na podstawie wykresu oszacuj, ile razy więcej zarobił Avengers: Endgame niż Star Wars: The Force Awakens"),
-            dcc.Input(id='truncated-axis-input', className='centered', type='range', min=1, max=10, step=0.1,
+            html.H4(children="Basing on the chart estimate how many times more Avengers: Endgame earned than Star Wars: The Force Awakens"),
+            dbc.FormGroup([
+            dbc.Input(id='truncated-axis-input', className='centered', type='range', min=1, max=10, step=0.1,
                         value=5),
             html.H4(id='result', children="2"),
-            html.Button(id='check-button', children="Sprawdź")
+            dbc.Button(id='check-button', children="Check", color="primary", className="mt-3 float-center")
+            ])
         ])
         ]),
 
@@ -271,9 +273,24 @@ app.layout = dbc.Container(
             html.Br(),
             html.Br(),
             html.Br(),
-            html.H3(children="Prawidłowa odpowiedź to 1,4. Ucięte osie potrafią znacznie utrudnić wyciągnięcie" + \
-                              " z wykresu prawidłowych wniosków. Poniżej możesz obejrzeć poprawny wykres z którego" + \
-                              " łatwiej odczytać prawidłowe informacje."),
+            html.Div(id='input_2_out-2'),
+            html.H2('Bad plot'),
+            dcc.Graph(
+                id='truncated-axis-2',
+                figure={
+                    'data': [
+                        {'x': labels, 'y': values, 'type': 'bar', 'name': 'SF'},
+                    ],
+                    'layout': {
+                        'title': 'Top 5 highest-grossing films',
+                        'yaxis': {
+                            'range': [2_000_000_000, 3_000_000_000],
+                            'color': '#E1E1E1',
+                        },
+                    }
+                }
+            ),
+            html.H2('Better plot'),
             dcc.Graph(
                 id='normal-axis',
                 figure={
@@ -281,7 +298,7 @@ app.layout = dbc.Container(
                         {'x': labels, 'y': values, 'type': 'bar', 'name': 'SF'},
                     ],
                     'layout': {
-                        'title': 'Zestawienie pięciu najlepiej zarabiających filmów w historii',
+                        'title': 'Top 5 highest-grossing films',
                     }
                 }
             ),
@@ -291,15 +308,13 @@ app.layout = dbc.Container(
         html.Div(id='test-div-3', children=[
             html.Div([dcc.Graph(figure=bad_fig_3, config={'staticPlot': True})]),
 
-            html.Label(questions[0]),
-            html.Br(),
-            dcc.Dropdown(options=city_options, id="input_1-3"),
-            html.Br(),
-            html.Label(questions[1]),
-            html.Br(),
-            dcc.Input(id='input_2-3', type='number'),
-            html.Br(),
-            html.Button('Check results', id='submit-button-3')
+            dbc.FormGroup([
+                dbc.Label(questions[0]),
+                dbc.Select(options=city_options, id="input_1-3"),
+                dbc.Label(questions[1]),
+                dbc.Input(id='input_2-3', type='number'),
+                dbc.Button('Check results', id='submit-button-3', color="primary", className="mt-3 float-center")
+            ]),
         ]),
 
 
@@ -326,18 +341,18 @@ app.layout = dbc.Container(
         html.Div(id='test-div-4', children=[
         html.Div([dcc.Graph(figure=bad_fig_4, config={'staticPlot': True})], style=plot_styles),
 
-        html.Label('GDP of which country has fluctuated more?'),
-        html.Br(),
-        dcc.RadioItems(
-            id='input-4',
-            options=[
-                {'label': 'Japan', 'value': 'Japan'},
-                {'label': 'Germany', 'value': 'Germany'},
-            ],
-            value='Japan'
-        ),
-        html.Br(),
-        html.Button('Check results', id='submit-button-4')
+        dbc.FormGroup([
+            dbc.Label('GDP of which country has fluctuated more?'),
+            dbc.RadioItems(
+                id='input-4',
+                options=[
+                    {'label': 'Japan', 'value': 'Japan'},
+                    {'label': 'Germany', 'value': 'Germany'},
+                ],
+                value='Japan'
+            ),
+            dbc.Button('Check results', id='submit-button-4', color="primary", className="mt-3 float-center")
+        ]),
     ]),
 
 
@@ -468,6 +483,14 @@ def show_2nd_proper_on_check_hide_on_go_to_third(n_clicks, go_to_third_n_clicks)
 )
 def result(value):
     return value
+
+
+@app.callback(
+    Output("input_2_out-2", "children"),
+    [Input("truncated-axis-input", "value")],
+)
+def number_render(input_2):
+    return "Your answer: {}, correct answer: 1.4".format(input_2)
 
 
 # trzeci wykres
